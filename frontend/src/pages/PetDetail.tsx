@@ -1,4 +1,4 @@
-import { Card, Descriptions, List, Space, Tabs, Timeline, Typography } from 'antd';
+import { Card, Descriptions, List, Space, Tabs, Tag, Timeline, Typography } from 'antd';
 import { useParams } from 'react-router-dom';
 import { usePetDetail, usePetInsurance, usePetMedical, usePetVaccines } from '../hooks/usePets';
 import { PetAvatar } from '../components/common/PetAvatar';
@@ -55,7 +55,15 @@ export default function PetDetail() {
                 dataSource={policies}
                 renderItem={(policy) => (
                   <List.Item actions={[<StatusBadge key="status" status={policy.status} />]}>
-                    <List.Item.Meta title={`${policy.provider} ${enumLabels[policy.planType]}计划`} description={`${formatCurrency(policy.premium)} / 保障 ${formatCurrency(policy.coverage)}`} />
+                    <List.Item.Meta
+                      title={
+                        <Space size={4}>
+                          {policy.provider} {enumLabels[policy.planType]}计划
+                          {policy.renewedFromId && <Tag color="teal">续保保单</Tag>}
+                        </Space>
+                      }
+                      description={`${formatDate(policy.startDate)} 至 ${formatDate(policy.endDate)} · ${formatCurrency(policy.premium)} / 保障 ${formatCurrency(policy.coverage)}`}
+                    />
                   </List.Item>
                 )}
               />

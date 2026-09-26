@@ -1,5 +1,5 @@
-import { Gender, InsuranceStatus, PetSpecies, PolicyType, VaccineStatus, VisitType } from '../constants/enums';
-import type { InsurancePolicy } from '../types/insurance';
+import { Gender, InsuranceStatus, PetSpecies, PolicyType, RenewalStatus, VaccineStatus, VisitType } from '../constants/enums';
+import type { InsurancePolicy, PolicyRenewal } from '../types/insurance';
 import type { MedicalRecord } from '../types/medical';
 import type { Pet } from '../types/pet';
 import type { VaccineRecord } from '../types/vaccine';
@@ -101,15 +101,44 @@ export const mockInsurance: InsurancePolicy[] = [
     pet: mockPets[0],
   },
   {
+    id: 'policy-demo-0',
+    petId: 'pet-demo-2',
+    provider: '萌宠保',
+    planType: PolicyType.BASIC,
+    premium: 599,
+    coverage: 12000,
+    startDate: '2024-10-11',
+    endDate: '2025-10-10',
+    status: InsuranceStatus.EXPIRED,
+    pet: mockPets[1],
+  },
+  {
     id: 'policy-demo-2',
     petId: 'pet-demo-2',
     provider: '萌宠保',
     planType: PolicyType.BASIC,
     premium: 699,
     coverage: 12000,
-    startDate: '2025-07-01',
-    endDate: '2026-07-01',
+    startDate: '2025-10-11',
+    endDate: '2026-10-10',
     status: InsuranceStatus.PENDING_RENEWAL,
+    renewedFromId: 'policy-demo-0',
     pet: mockPets[1],
+  },
+];
+
+export const mockRenewals: PolicyRenewal[] = [
+  {
+    id: 'renewal-demo-1',
+    policyId: 'policy-demo-0',
+    petId: 'pet-demo-2',
+    startDate: '2025-10-11',
+    endDate: '2026-10-10',
+    premium: 699,
+    status: RenewalStatus.APPROVED,
+    newPolicyId: 'policy-demo-2',
+    processedAt: '2025-10-01',
+    createdAt: '2025-09-28',
+    policy: mockInsurance[1],
   },
 ];

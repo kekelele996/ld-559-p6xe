@@ -39,6 +39,12 @@ export enum PolicyType {
   PREMIUM = 'PREMIUM',
 }
 
+export enum RenewalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
@@ -67,4 +73,11 @@ export const enumLabels = {
   [PolicyType.PREMIUM]: '高级',
   [Gender.MALE]: '雄性',
   [Gender.FEMALE]: '雌性',
+};
+
+// RenewalStatus.PENDING 与 VaccineStatus.PENDING 取值相同，续保状态文案单独维护
+export const renewalStatusLabels: Record<RenewalStatus, string> = {
+  [RenewalStatus.PENDING]: '待处理',
+  [RenewalStatus.APPROVED]: '已通过',
+  [RenewalStatus.REJECTED]: '已驳回',
 };

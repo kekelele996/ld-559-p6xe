@@ -1,4 +1,4 @@
-import { InsuranceStatus, PolicyType } from '../constants/enums';
+import { InsuranceStatus, PolicyType, RenewalStatus } from '../constants/enums';
 import { Pet } from './pet';
 
 export interface InsurancePolicy {
@@ -11,5 +11,20 @@ export interface InsurancePolicy {
   startDate: string;
   endDate: string;
   status: InsuranceStatus;
+  renewedFromId?: string | null;
   pet?: Pet;
+}
+
+export interface PolicyRenewal {
+  id: string;
+  policyId: string;
+  petId: string;
+  startDate: string;
+  endDate: string;
+  premium: number;
+  status: RenewalStatus;
+  newPolicyId?: string | null;
+  processedAt?: string | null;
+  createdAt: string;
+  policy?: InsurancePolicy;
 }

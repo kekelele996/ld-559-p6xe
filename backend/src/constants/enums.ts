@@ -39,6 +39,12 @@ export enum PolicyType {
   PREMIUM = 'PREMIUM',
 }
 
+export enum RenewalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',

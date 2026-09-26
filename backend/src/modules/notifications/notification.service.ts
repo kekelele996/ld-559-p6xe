@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InsuranceStatus } from '../../constants/enums';
 import { addDays } from '../../utils/date';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -20,6 +21,12 @@ export class NotificationService {
 
   async scanAndCreateReminders() {
     const now = new Date();
+    // 30 天内到期的生效保单自动进入待续状态，主人可从保单卡片发起续保
+    await this.prisma.insurancePolicy.updateMany({
+      where: { status: InsuranceStatus.ACTIVE, endDate: { lte: addDays(now, 30) } },
+      data: { status: InsuranceStatus.PENDING_RENEWAL },
+    });
+
     const vaccineDue = await this.prisma.vaccineRecord.findMany({
       where: { nextDueDate: { gte: now, lte: addDays(now, 7) } },
       include: { pet: true },

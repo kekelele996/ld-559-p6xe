@@ -1,4 +1,4 @@
-import { PrismaClient, Gender, InsuranceStatus, PetSpecies, PolicyType, UserRole, VaccineStatus, VisitType } from '@prisma/client';
+import { PrismaClient, Gender, InsuranceStatus, PetSpecies, PolicyType, RenewalStatus, UserRole, VaccineStatus, VisitType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -60,7 +60,20 @@ async function main() {
       status: VaccineStatus.PENDING,
     },
   });
-  await prisma.insurancePolicy.create({
+  // 上一段保单（已过期保留）→ 当前待续保单，演示续保前后关系
+  const expiredPolicy = await prisma.insurancePolicy.create({
+    data: {
+      petId: pet.id,
+      provider: 'PawShield',
+      planType: PolicyType.STANDARD,
+      premium: 1199,
+      coverage: 30000,
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2025-12-31'),
+      status: InsuranceStatus.EXPIRED,
+    },
+  });
+  const currentPolicy = await prisma.insurancePolicy.create({
     data: {
       petId: pet.id,
       provider: 'PawShield',
@@ -68,8 +81,21 @@ async function main() {
       premium: 1299,
       coverage: 30000,
       startDate: new Date('2026-01-01'),
-      endDate: new Date('2026-12-31'),
-      status: InsuranceStatus.ACTIVE,
+      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 20),
+      status: InsuranceStatus.PENDING_RENEWAL,
+      renewedFromId: expiredPolicy.id,
+    },
+  });
+  await prisma.policyRenewal.create({
+    data: {
+      policyId: expiredPolicy.id,
+      petId: pet.id,
+      startDate: currentPolicy.startDate,
+      endDate: currentPolicy.endDate,
+      premium: 1299,
+      status: RenewalStatus.APPROVED,
+      newPolicyId: currentPolicy.id,
+      processedAt: new Date('2026-01-01'),
     },
   });
 }

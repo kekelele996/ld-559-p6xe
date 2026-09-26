@@ -1,7 +1,7 @@
 import { Tag } from 'antd';
-import { InsuranceStatus, VaccineStatus, enumLabels } from '../../constants/enums';
+import { InsuranceStatus, RenewalStatus, VaccineStatus, enumLabels, renewalStatusLabels } from '../../constants/enums';
 
-type Status = VaccineStatus | InsuranceStatus | string;
+type Status = VaccineStatus | InsuranceStatus | RenewalStatus | string;
 
 const colors: Record<string, string> = {
   [VaccineStatus.COMPLETED]: 'green',
@@ -13,6 +13,15 @@ const colors: Record<string, string> = {
   [InsuranceStatus.CLAIMING]: 'blue',
 };
 
-export function StatusBadge({ status }: { status: Status }) {
+const renewalColors: Record<string, string> = {
+  [RenewalStatus.PENDING]: 'gold',
+  [RenewalStatus.APPROVED]: 'green',
+  [RenewalStatus.REJECTED]: 'red',
+};
+
+export function StatusBadge({ status, kind }: { status: Status; kind?: 'renewal' }) {
+  if (kind === 'renewal') {
+    return <Tag color={renewalColors[status] || 'default'}>{renewalStatusLabels[status as RenewalStatus] || status}</Tag>;
+  }
   return <Tag color={colors[status] || 'default'}>{enumLabels[status as keyof typeof enumLabels] || status}</Tag>;
 }

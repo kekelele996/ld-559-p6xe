@@ -40,7 +40,7 @@ PetCare+ 是面向宠物主人、兽医和管理员的一站式宠物健康管�
 | `/pets/:id` | 基本信息、就诊时间线、疫苗日历、保单列表 |
 | `/medical` | 就诊记录表格、处方侧栏、费用柱状图 |
 | `/vaccines` | 疫苗日历、待接种提醒、状态标记 |
-| `/insurance` | 保单卡片、理赔流程、保费/保障分析 |
+| `/insurance` | 保单卡片、续保申请与处理、理赔流程、保费/保障分析 |
 
 ## 核心实体贯穿链路
 
@@ -61,6 +61,7 @@ PetCare+ 是面向宠物主人、兽医和管理员的一站式宠物健康管�
 | VaccineStatus | `backend/src/constants/enums.ts`、`vaccine.dto.ts`、`notification.scheduler.ts`、`schema.prisma` | `frontend/src/constants/enums.ts`、`vaccine.d.ts`、`VaccineManagement.tsx`、`VaccineCalendar.tsx`、`StatusBadge.tsx` |
 | InsuranceStatus | `backend/src/constants/enums.ts`、`insurance.dto.ts`、`notification.scheduler.ts`、`schema.prisma` | `frontend/src/constants/enums.ts`、`insurance.d.ts`、`InsuranceCenter.tsx`、`InsurancePieChart.tsx`、`StatusBadge.tsx` |
 | PolicyType | `backend/src/constants/enums.ts`、`insurance.dto.ts`、`schema.prisma` | `frontend/src/constants/enums.ts`、`insurance.d.ts`、`InsuranceCenter.tsx`、`mockData.ts` |
+| RenewalStatus | `backend/src/constants/enums.ts`、`insurance.service.ts`、`insurance.repository.ts`、`schema.prisma` | `frontend/src/constants/enums.ts`、`insurance.d.ts`、`RenewalList.tsx`、`StatusBadge.tsx` |
 | Gender | `backend/src/constants/enums.ts`、`pet.dto.ts`、`schema.prisma` | `frontend/src/constants/enums.ts`、`pet.d.ts`、`PetDetail.tsx`、`mockData.ts` |
 
 ## RBAC
@@ -82,6 +83,15 @@ PetCare+ 是面向宠物主人、兽医和管理员的一站式宠物健康管�
 ## 提醒通知
 
 `backend/src/modules/notifications/notification.scheduler.ts` 使用 Nest Schedule 扫描疫苗到期、保险续保和复诊提醒。前端 `NotificationBell.tsx` 拉取未读通知。
+
+## 续保流程
+
+续保是一条独立记录，不会覆盖原保单：
+
+1. 到期前 30 天内的生效保单由定时任务自动置为「待续」，保险中心的保单卡片出现「发起续保」入口。
+2. 提交续保申请（`POST /api/v1/insurance/renewals`）时选择新的起止日期和保费，后端按自然日校验：新保障期不能与原保单重叠、两段之间最多空 30 天；同一保单已有待处理续保时再次提交会提示先处理原申请。
+3. 在「续保申请」卡片通过或驳回申请。通过后在事务内生成新保单（新日期、新保费、状态生效，通过 `renewedFromId` 关联旧保单），旧保单置为已过期并完整保留；驳回后原保单仍为待续，可重新发起。
+4. 保单卡片展示前后关系（由上期保单续保 / 已续保至新保障期），数据持久化在数据库，重启后历史仍可查。
 
 ## 目录结构
 

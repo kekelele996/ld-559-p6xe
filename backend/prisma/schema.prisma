@@ -48,6 +48,12 @@ enum PolicyType {
   PREMIUM
 }
 
+enum RenewalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -93,6 +99,7 @@ model Pet {
   medicalRecords MedicalRecord[]
   vaccineRecords VaccineRecord[]
   policies       InsurancePolicy[]
+  policyRenewals PolicyRenewal[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 }
@@ -133,18 +140,39 @@ model VaccineRecord {
 }
 
 model InsurancePolicy {
-  id        String          @id @default(cuid())
-  petId     String
-  provider  String
-  planType  PolicyType
-  premium   Decimal
-  coverage  Decimal
-  startDate DateTime
-  endDate   DateTime
-  status    InsuranceStatus
-  pet       Pet             @relation(fields: [petId], references: [id])
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id              String          @id @default(cuid())
+  petId           String
+  provider        String
+  planType        PolicyType
+  premium         Decimal
+  coverage        Decimal
+  startDate       DateTime
+  endDate         DateTime
+  status          InsuranceStatus
+  renewedFromId   String?
+  pet             Pet             @relation(fields: [petId], references: [id])
+  renewedFrom     InsurancePolicy?  @relation("PolicyRenewalChain", fields: [renewedFromId], references: [id])
+  renewals        InsurancePolicy[] @relation("PolicyRenewalChain")
+  renewalRequests PolicyRenewal[]   @relation("RenewalSourcePolicy")
+  renewalResult   PolicyRenewal?    @relation("RenewalResultPolicy")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model PolicyRenewal {
+  id          String          @id @default(cuid())
+  policyId    String
+  petId       String
+  startDate   DateTime
+  endDate     DateTime
+  premium     Decimal
+  status      RenewalStatus   @default(PENDING)
+  newPolicyId String?         @unique
+  policy      InsurancePolicy @relation("RenewalSourcePolicy", fields: [policyId], references: [id])
+  pet         Pet             @relation(fields: [petId], references: [id])
+  newPolicy   InsurancePolicy? @relation("RenewalResultPolicy", fields: [newPolicyId], references: [id])
+  createdAt   DateTime        @default(now())
+  processedAt DateTime?
 }
 
 model Notification {
