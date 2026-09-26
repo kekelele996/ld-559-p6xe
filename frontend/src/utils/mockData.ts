@@ -112,4 +112,25 @@ export const mockInsurance: InsurancePolicy[] = [
     status: InsuranceStatus.PENDING_RENEWAL,
     pet: mockPets[1],
   },
+  {
+    id: 'policy-demo-3',
+    petId: 'pet-demo-2',
+    provider: '萌宠保',
+    planType: PolicyType.BASIC,
+    premium: 749,
+    coverage: 12000,
+    startDate: '2026-07-02',
+    endDate: '2027-07-02',
+    status: InsuranceStatus.ACTIVE,
+    renewedFromId: 'policy-demo-2',
+    pet: mockPets[1],
+  },
 ];
+
+// 关联演示数据中的续保前后关系
+const renewedDemo = mockInsurance.find((policy) => policy.id === 'policy-demo-3');
+const sourceDemo = mockInsurance.find((policy) => policy.id === 'policy-demo-2');
+if (renewedDemo && sourceDemo) {
+  renewedDemo.renewedFrom = sourceDemo;
+  sourceDemo.renewals = [renewedDemo];
+}

@@ -133,18 +133,21 @@ model VaccineRecord {
 }
 
 model InsurancePolicy {
-  id        String          @id @default(cuid())
-  petId     String
-  provider  String
-  planType  PolicyType
-  premium   Decimal
-  coverage  Decimal
-  startDate DateTime
-  endDate   DateTime
-  status    InsuranceStatus
-  pet       Pet             @relation(fields: [petId], references: [id])
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id            String            @id @default(cuid())
+  petId         String
+  provider      String
+  planType      PolicyType
+  premium       Decimal
+  coverage      Decimal
+  startDate     DateTime
+  endDate       DateTime
+  status        InsuranceStatus
+  renewedFromId String?
+  pet           Pet               @relation(fields: [petId], references: [id])
+  renewedFrom   InsurancePolicy?  @relation("PolicyRenewal", fields: [renewedFromId], references: [id])
+  renewals      InsurancePolicy[] @relation("PolicyRenewal")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 model Notification {

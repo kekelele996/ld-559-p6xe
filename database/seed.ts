@@ -72,6 +72,18 @@ async function main() {
       status: InsuranceStatus.ACTIVE,
     },
   });
+  await prisma.insurancePolicy.create({
+    data: {
+      petId: pet.id,
+      provider: '萌宠保',
+      planType: PolicyType.BASIC,
+      premium: 699,
+      coverage: 12000,
+      startDate: new Date('2025-10-15'),
+      endDate: new Date('2026-10-15'),
+      status: InsuranceStatus.PENDING_RENEWAL,
+    },
+  });
 }
 
 main().finally(async () => prisma.$disconnect());

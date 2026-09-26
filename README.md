@@ -40,7 +40,7 @@ PetCare+ 是面向宠物主人、兽医和管理员的一站式宠物健康管�
 | `/pets/:id` | 基本信息、就诊时间线、疫苗日历、保单列表 |
 | `/medical` | 就诊记录表格、处方侧栏、费用柱状图 |
 | `/vaccines` | 疫苗日历、待接种提醒、状态标记 |
-| `/insurance` | 保单卡片、理赔流程、保费/保障分析 |
+| `/insurance` | 保单卡片、续保（独立记录、前后关联）、理赔流程、保费/保障分析 |
 
 ## 核心实体贯穿链路
 
@@ -82,6 +82,17 @@ PetCare+ 是面向宠物主人、兽医和管理员的一站式宠物健康管�
 ## 提醒通知
 
 `backend/src/modules/notifications/notification.scheduler.ts` 使用 Nest Schedule 扫描疫苗到期、保险续保和复诊提醒。前端 `NotificationBell.tsx` 拉取未读通知。
+
+## 续保流程
+
+续保不再修改原保单，而是从待续保单发起一条独立的新保单记录（`POST /api/v1/insurance/:id/renew`，入参 `startDate` / `endDate` / `premium` / `coverage?`），通过 `InsurancePolicy.renewedFromId` 自关联记录前后关系，原保单保留可查。规则：
+
+- 新保障期不能与原保单重叠（开始日期必须晚于原保单结束日期）；
+- 新旧保障期之间的空档最多 30 天（`insurance.validator.ts` 的 `validateRenewalWindow`）；
+- 同一保单已有待处理（`PENDING_RENEWAL`）的续保申请时，重复提交会提示先处理原申请；
+- 新保单开始日期未到则为待续状态，到达后按新日期生效（`ACTIVE`）。
+
+前端在保险中心保单卡片上发起续保（`RenewPolicyModal.tsx`），卡片同时展示"续保自旧保单 / 已续保至新保障期"的前后关系。
 
 ## 目录结构
 

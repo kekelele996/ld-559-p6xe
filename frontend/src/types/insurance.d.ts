@@ -11,5 +11,15 @@ export interface InsurancePolicy {
   startDate: string;
   endDate: string;
   status: InsuranceStatus;
+  renewedFromId?: string | null;
+  renewedFrom?: InsurancePolicy | null;
+  renewals?: InsurancePolicy[];
   pet?: Pet;
+}
+
+export interface RenewInsurancePayload {
+  startDate: string;
+  endDate: string;
+  premium: number;
+  coverage?: number;
 }

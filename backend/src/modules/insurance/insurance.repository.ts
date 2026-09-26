@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { UserRole } from '../../constants/enums';
+import { InsuranceStatus, UserRole } from '../../constants/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -12,7 +12,21 @@ export class InsuranceRepository {
       ...(user.role === UserRole.PET_OWNER ? { pet: { ownerId: user.sub } } : {}),
       ...(petId ? { petId } : {}),
     };
-    return this.prisma.insurancePolicy.findMany({ where, include: { pet: true }, orderBy: { endDate: 'asc' } });
+    return this.prisma.insurancePolicy.findMany({
+      where,
+      include: { pet: true, renewedFrom: true, renewals: true },
+      orderBy: { endDate: 'asc' },
+    });
+  }
+
+  findById(id: string) {
+    return this.prisma.insurancePolicy.findUnique({ where: { id } });
+  }
+
+  findPendingRenewal(sourceId: string) {
+    return this.prisma.insurancePolicy.findFirst({
+      where: { renewedFromId: sourceId, status: InsuranceStatus.PENDING_RENEWAL },
+    });
   }
 
   create(data: Prisma.InsurancePolicyUncheckedCreateInput) {
